@@ -1,18 +1,16 @@
 language: node_js
 node_js:
-  - 9
-install:
-  # Use npm 5.7.x since it has introduced `npm ci`
-  - if [[ `npm -v` != 5.7* ]]; then npm install -g npm@'>=5.7.1'; fi
-  - npm ci
+  - 10
 branches:
-  except:
-    - /^v\d+\.\d+\.\d+$/
+  only:
+    - master
 script:
   - npm run test
 stages:
   - lint
   - test
+  - name: release
+    if: type != pull_request AND branch = master
 jobs:
   include:
     - stage: lint
@@ -24,3 +22,7 @@ jobs:
         - npm run compile
         # Run integration tests
         - npm run test
+    - stage: release
+      script:
+        - npm install --no-save node-fetch semantic-release
+        - npx semantic-release
